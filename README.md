@@ -36,6 +36,10 @@ The application uses a simple random number generator to generate questions, but
 The application does not support negative numbers or decimals in the impossible mode.
 The application does not have a timer or a limit on the number of questions.
 
+ALSO IMPOSSIBLE IS VERY HARD
+
+Have Fun!
+
 
 
 
