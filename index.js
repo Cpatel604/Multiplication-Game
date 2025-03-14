@@ -1,26 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Get the score element and initialize the score to 0
   const scoreElement = document.getElementById("score");
   let currentScore = 0;
 
-  // Set the default mode and difficulty
-  let currentMode = "multiplication"; // Default mode
-  let currentDifficulty = "easy"; // Default difficulty
+  let currentMode = "multiplication"; 
+  let currentDifficulty = "easy"; 
 
-  // Initialize variables for the question
   let correctAnswer = null;
   let num1 = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0;
+  let riddleAnswer = null;
 
-  // Function to update the score
   function updateScore(points) {
-    // Add the points to the current score and update the score element
     currentScore += points;
     scoreElement.textContent = `Score: ${currentScore}`;
   }
 
-  // Function to calculate score based on difficulty
   function getScoreForDifficulty(difficulty) {
-    // Use a switch statement to return the score based on the difficulty
     switch (difficulty) {
       case "easy": return 5;
       case "medium": return 10;
@@ -30,12 +24,42 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Function to generate a random question
+  function generateRiddle() {
+    const riddles = [
+      { question: "What has keys but can't open locks?", answer: "piano", difficulty: "easy" },
+      { question: "What runs but never walks?", answer: "river", difficulty: "easy" },
+      { question: "What has a face and two hands but no arms or legs?", answer: "clock", difficulty: "easy" },
+      { question: "What can you catch but not throw?", answer: "cold", difficulty: "medium" },
+      { question: "What is always coming but never arrives?", answer: "tomorrow", difficulty: "medium" },
+      { question: "What is greater than God, more evil than the devil, the poor have it, the rich need it, and if you eat it you will die?", answer: "nothing", difficulty: "hard" },
+      { question: "What can be broken, but never held?", answer: "promise", difficulty: "hard" },
+      { question: "What has a head, a tail, but no body?", answer: "coin", difficulty: "hard" },
+      { question: "I am taken from a mine and shut up in a wooden case, from which I am never released, and yet I am used by almost every person. What am I?", answer: "pencil lead", difficulty: "impossible" },
+      { question: "What is so fragile that saying its name breaks it?", answer: "silence", difficulty: "impossible" },
+      { question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?", answer: "echo", difficulty: "impossible" },
+      { question: "You measure my life in hours and I serve you by expiring. Im quick when Im thin and slow when Im fat. The wind is my enemy. What am I?", answer: "candle", difficulty: "impossible" },
+      { question: "What has many keys but can't open locks?", answer: "piano", difficulty: "impossible" },
+      { question: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?", answer: "map", difficulty: "impossible" },
+      { question: "What is seen in the middle of March and April that cant be seen at the beginning or end of either month?", answer: "r", difficulty: "impossible" },
+    ];
+    const riddleIndex = Math.floor(Math.random() * riddles.length);
+    const riddle = riddles[riddleIndex];
+    if (riddle.difficulty !== currentDifficulty) {
+      generateRiddle();
+      return;
+    }
+    document.getElementById("question").textContent = riddle.question;
+    riddleAnswer = riddle.answer;
+  }
+
+ 
   function generateQuestion() {
-    // Use a switch statement to generate a question based on the mode
+    if (currentMode === "riddles") {
+      generateRiddle();
+      return;
+    }
     switch (currentMode) {
       case "multiplication":
-        // Generate numbers for the question based on the difficulty
         switch (currentDifficulty) {
           case "easy":
             num1 = Math.floor(Math.random() * 5) + 1;
@@ -60,11 +84,9 @@ document.addEventListener("DOMContentLoaded", () => {
           default:
             break;
         }
-        // Calculate the correct answer for the question
         correctAnswer = num1 * num2;
         break;
       case "fractions":
-        // Generate numbers for the question based on the difficulty
         switch (currentDifficulty) {
           case "easy":
             num1 = Math.floor(Math.random() * 5) + 1;
@@ -85,17 +107,14 @@ document.addEventListener("DOMContentLoaded", () => {
             num4 = Math.floor(Math.random() * 10) + 1;
             num5 = Math.floor(Math.random() * 10) + 1;
             correctAnswer = Math.round(Math.atan2(num4 * num5 - num2 * num3, num1 * num5 - num2 * num4) * 100) / 100;
-            // These are partial Diffrential Equations Made Using AI since i have never even touched partial differential equations
             document.getElementById("question").textContent = `Solve for x: ${num1}x + ${num2} = ${num3}x + ${num4}sin(${num5}x)`; 
             return;
           default:
             break;
         }
-        // Calculate the correct answer for the question
         correctAnswer = Math.round(num1 / num2 * 100) / 100;
         break;
       case "decimals":
-        // Generate numbers for the question based on the difficulty
         switch (currentDifficulty) {
           case "easy":
             num1 = Math.floor(Math.random() * 200);
@@ -121,60 +140,56 @@ document.addEventListener("DOMContentLoaded", () => {
           default:
             break;
         }
-        // Calculate the correct answer for the question
         correctAnswer = Math.random() < 0.5 ? Math.round((num1 + num2) * 100) / 100 : Math.round((num1 - num2) * 100) / 100;
         break;
       default:
         break;
     }
-
-    // Set the question text based on the mode and numbers
+    
     document.getElementById("question").textContent = `What is ${num1} ${currentMode === "multiplication" ? "*" : currentMode === "fractions" ? "/" : currentMode === "decimals" ? (correctAnswer < num1 ? "-" : "+") : ""} ${num2}?`;
   }
 
-  // Generate a question when the page first loads
   generateQuestion();
 
-  // Event listener for submit button
   document.getElementById("form").addEventListener("submit", (event) => {
     event.preventDefault();
-    // Get the user's answer and check if it's correct
-    const userAnswer = Number(document.getElementById("input").value);
-    if (Math.round(userAnswer * 100) / 100 === correctAnswer) {
-      // Update the score and generate a new question
-      updateScore(getScoreForDifficulty(currentDifficulty));
+    const userAnswer = document.getElementById("input").value.trim();
+    if (currentMode === "riddles") {
+      if (userAnswer.toLowerCase() === riddleAnswer) {
+        updateScore(getScoreForDifficulty(currentDifficulty));
+      } else {
+        alert(`Wrong answer! The correct answer was '${riddleAnswer}'.`);
+      }
     } else {
-      // Alert the user if they got the question wrong
-      alert(`Wrong answer! The correct answer was ${correctAnswer}.`);
+      const numericAnswer = Number(userAnswer);
+      if (Math.round(numericAnswer * 100) / 100 === correctAnswer) {
+        updateScore(getScoreForDifficulty(currentDifficulty));
+      } else {
+        alert(`Wrong answer! The correct answer was ${correctAnswer}.`);
+      }
     }
-    // Clear the input field and generate a new question
     document.getElementById("input").value = "";
     generateQuestion();
   });
 
-  // Event listener for reset button
   document.getElementById("reset").addEventListener("click", () => {
-    // Reset the score and generate a new question
     currentScore = 0;
     scoreElement.textContent = "Score: 0";
     generateQuestion();
   });
 
-  // Event listeners for mode buttons
   document.querySelectorAll(".mode").forEach(button => {
     button.addEventListener("click", (event) => {
-      // Update the mode and generate a new question
       currentMode = event.target.id.split('-')[1];
       generateQuestion();
     });
   });
 
-  // Event listeners for difficulty buttons
   document.querySelectorAll(".difficulty").forEach(button => {
     button.addEventListener("click", (event) => {
-      // Update the difficulty and generate a new question
       currentDifficulty = event.target.id.split('-')[1];
       generateQuestion();
     });
   });
 });
+
